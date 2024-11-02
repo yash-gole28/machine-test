@@ -6,10 +6,19 @@ import { useNavigate } from 'react-router-dom';
 const TopRated = () => {
     const {data, setData} = useContextData();
     const route = useNavigate()
+    const [page, setPage] = useState(1)
+
+
+    const toNextPage = () => {
+        setPage((data) => data + 1)
+    }
+    const toPreviousPage = () => {
+        setPage((data) => data - 1)
+    }
     const getData = async () => {
       try {
         const response = await axios.get(
-          "https://api.themoviedb.org/3/movie/top_rated?api_key=c45a857c193f6302f2b5061c3b85e743&language=en-US&page=1"
+          `https://api.themoviedb.org/3/movie/top_rated?api_key=c45a857c193f6302f2b5061c3b85e743&language=en-US&page=${page}`
         );
         if (response.data) {
           setData(response.data.results);
@@ -20,7 +29,7 @@ const TopRated = () => {
     };
     useEffect(() => {
       getData();
-    }, []);
+    }, [page]);
   return (
     <div className="body">
       <div className="card-container">
@@ -37,6 +46,11 @@ const TopRated = () => {
             </div>
           </div>
         ))}
+      </div>
+      <div className="pagination">
+        {page > 1 ? <span onClick={toPreviousPage}> &laquo; prev </span> : <span className="disabled-prev" >&laquo; prev</span>}
+        <span className="page-number">{page}</span>
+        <span onClick={toNextPage}>next &raquo;</span>
       </div>
     </div>
   )

@@ -4,30 +4,38 @@ import { useContextData } from '../components/context/ContextData';
 import { useNavigate } from 'react-router-dom';
 
 const UpComing = () => {
-  const {data, setData ,clearData} = useContextData();
+  const { data, setData, clearData } = useContextData();
   const route = useNavigate()
-    const getData = async () => {
-      try {
-        console.log('called')
-        const response = await axios.get(
-          "https://api.themoviedb.org/3/movie/upcoming?api_key=c45a857c193f6302f2b5061c3b85e743&language=en-US&page=1"
-        );
-        if (response.data) {
-          setData(response.data.results);
-        } else console.log("no data found");
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    useEffect(() => {
-      getData();
-    }, []);
+  const [page, setPage] = useState(1)
+
+
+  const toNextPage = () => {
+    setPage((data) => data + 1)
+  }
+  const toPreviousPage = () => {
+    setPage((data) => data - 1)
+  }
+  const getData = async () => {
+    try {
+      const response = await axios.get(
+        `https://api.themoviedb.org/3/movie/upcoming?api_key=c45a857c193f6302f2b5061c3b85e743&language=en-US&page=${page}`
+      );
+      if (response.data) {
+        setData(response.data.results);
+      } else console.log("no data found");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, [page]);
   return (
     <div className="body">
       <div className="card-container">
         {data?.map((item, index) => (
           <div key={index} className="card">
-            <div onClick={()=>route(`/movie/${item.id}`)} className="card-inner-container">
+            <div onClick={() => route(`/movie/${item.id}`)} className="card-inner-container">
               <img
                 className="image"
                 src={`https://image.tmdb.org/t/p/w500${item.backdrop_path}`}
@@ -38,6 +46,11 @@ const UpComing = () => {
             </div>
           </div>
         ))}
+      </div>
+      <div className="pagination">
+        {page > 1 ? <span onClick={toPreviousPage}> &laquo; prev </span> : <span className="disabled-prev" >&laquo; prev</span>}
+        <span className="page-number">{page}</span>
+        <span onClick={toNextPage}>next &raquo;</span>
       </div>
     </div>
   )
